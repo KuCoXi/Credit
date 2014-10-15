@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="71"
+   name=""
+   committed-date="2013-10-31T07:04:55.296875Z"
+   url="https://pc-201102141651/svn/android_project/Authentication/trunk/Authentication/libs/armeabi"
+   last-author="wanghengwei"
+   kind="dir"
+   repos="https://pc-201102141651/svn/android_project"
+   revision="102"/>
+<entry
+   committed-rev="71"
+   name="libDecodeWlt.so"
+   text-time="2013-07-19T01:12:54.000000Z"
+   committed-date="2013-10-31T07:04:55.296875Z"
+   checksum="85a48e1d0a348eb8fc3310a0ce84179c"
+   last-author="wanghengwei"
+   kind="file"
+   prop-time="2013-10-31T07:09:50.000000Z"/>
+<entry
+   committed-rev="71"
+   name="libWltRS.so"
+   text-time="2013-07-19T01:12:54.000000Z"
+   committed-date="2013-10-31T07:04:55.296875Z"
+   checksum="dec8dbf721abb4971237fe043fa66002"
+   last-author="wanghengwei"
+   kind="file"
+   prop-time="2013-10-31T07:09:50.000000Z"/>
+<entry
+   committed-rev="71"
+   name="libserial_port.so"
+   text-time="2012-07-10T02:26:26.000000Z"
+   committed-date="2013-10-31T07:04:55.296875Z"
+   checksum="24ed22036150c9b500593db870fe68c3"
+   last-author="wanghengwei"
+   kind="file"
+   prop-time="2013-10-31T07:09:50.000000Z"/>
+</wc-entries>

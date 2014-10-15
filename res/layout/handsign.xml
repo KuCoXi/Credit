@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/setting_bg" >
+	<TextView
+	    android:id="@+id/tv_intro"
+	    android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:textColor="@android:color/background_dark"
+        android:textSize="20sp"
+        android:text="申请人签名："/>
+    <LinearLayout
+        android:id="@+id/WriteUserNameSpace"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_below="@id/tv_intro"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical" >
+    </LinearLayout>
+	<Button
+        android:id="@+id/btQuit"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/WriteUserNameSpace"
+        android:layout_marginTop="10dp"
+        android:text="取消"
+        android:textColor="@android:color/background_dark" />
+    <Button
+        android:id="@+id/btClear"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/WriteUserNameSpace"
+        android:layout_marginTop="10dp"
+        android:text="擦除签名"
+        android:textColor="@android:color/background_dark" />
+	<Button
+        android:id="@+id/btSave"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/WriteUserNameSpace"
+        android:layout_marginTop="10dp"
+        android:text="保存签名"
+        android:textColor="@android:color/background_dark" />
+</RelativeLayout>
