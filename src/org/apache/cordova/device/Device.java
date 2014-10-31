@@ -58,7 +58,7 @@ public class Device extends CordovaPlugin {
         super.initialize(cordova, webView);
         Device.uuid = getUuid();
     }
-
+    
     /**
      * Executes the request and returns PluginResult.
      *
@@ -70,10 +70,11 @@ public class Device extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("getDeviceInfo")) {
             JSONObject r = new JSONObject();
-            /**测试用，写死MAC地址*/
-            r.put("uuid", Device.uuid/*"0024250e1124758c"*/);
+            r.put("uuid", Device.uuid);
+            System.out.println("mac地址："+Device.uuid);
             r.put("version", this.getOSVersion());
             r.put("platform", this.getPlatform());
+            System.out.println("平台："+this.getPlatform());
             r.put("cordova", Device.cordovaVersion);
             r.put("model", this.getModel());
             callbackContext.success(r);
