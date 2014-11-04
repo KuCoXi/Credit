@@ -2,10 +2,15 @@ package com.mega.credit;
 
 import java.io.Serializable;
 
-import android.R.integer;
-
 public class Person implements Serializable
 {
+	private String msg;
+	public Person(String msg)
+	{
+		this.setMsg(msg);
+	}
+	
+	public Person(){}
 	/**
 	 * ÐÕÃû
 	 */
@@ -195,6 +200,16 @@ public class Person implements Serializable
 	public void setErrcode(int errcode)
 	{
 		this.errcode = errcode;
+	}
+
+	public String getMsg()
+	{
+		return msg;
+	}
+
+	public void setMsg(String msg)
+	{
+		this.msg = msg;
 	}
 
 

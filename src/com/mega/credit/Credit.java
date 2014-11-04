@@ -21,8 +21,10 @@ package com.mega.credit;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+
 import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.plugin.HXiMateDeviceSDK;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,8 +32,13 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 public class Credit extends CordovaActivity 
@@ -42,27 +49,39 @@ public class Credit extends CordovaActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         super.init();
         View view = LayoutInflater.from(this).inflate(R.layout.urltext, null);
         final EditText eturl = (EditText) view.findViewById(R.id.et_url);
         eturl.setText(MyConstants.spf.getString("url", ""));
-        final RadioButton rb_ureal = (RadioButton) view.findViewById(R.id.rb_ureal);
-        final RadioButton rb_real = (RadioButton) view.findViewById(R.id.rb_real);
-        RadioButton rb_bth = (RadioButton) view.findViewById(R.id.rb_bth);
-        rb_bth.setButtonDrawable(R.drawable.checkbox_checked_style);
-        rb_real.setButtonDrawable(R.drawable.checkbox_checked_style);
-        rb_ureal.setButtonDrawable(R.drawable.checkbox_checked_style);
+//        RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg01);
+        final RadioButton rb_yd = (RadioButton) view.findViewById(R.id.rb_yd);
+        final RadioButton rb_zd = (RadioButton) view.findViewById(R.id.rb_zd);
+        final RadioButton rb_bj = (RadioButton) view.findViewById(R.id.rb_bj);
+        rb_bj.setButtonDrawable(R.drawable.checkbox_checked_style);
+        rb_zd.setButtonDrawable(R.drawable.checkbox_checked_style);
+        rb_yd.setButtonDrawable(R.drawable.checkbox_checked_style);
+//        rb_yd.setOnCheckedChangeListener(new OnCheckedChangeListener()
+//		{
+//			
+//			@Override
+//			public void onCheckedChanged(CompoundButton arg0, boolean arg1)
+//			{
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
         MyConstants.setPowerOnSFZ();
         if (MyConstants.spf.getInt("cardreader_type", 0)==1)
 		{
-			rb_ureal.setChecked(true);
+			rb_zd.setChecked(true);
 		}
         else if (MyConstants.spf.getInt("cardreader_type", 0)==2) 
         {
-			rb_real.setChecked(true);
+			rb_bj.setChecked(true);
 		}
-        else {
-			rb_bth.setChecked(true);
+        else if (MyConstants.spf.getInt("cardreader_type", 0)==3){
+			rb_yd.setChecked(true);
 		}
         new AlertDialog.Builder(this).setTitle("选择").setView(view).setCancelable(false).setPositiveButton("退出", new DialogInterface.OnClickListener()
 		{
@@ -105,15 +124,16 @@ public class Credit extends CordovaActivity
 				{
 					field = dialog.getClass().getSuperclass().getDeclaredField("mShowing");
 					field.setAccessible(true);
-					if (rb_ureal.isChecked()==true)
+					if (rb_zd.isChecked()==true)
 					{
 						MyConstants.editor.putInt("cardreader_type", 1);
 					}
-					else if (rb_real.isChecked()==true){
+					else if (rb_bj.isChecked()==true){
 						MyConstants.editor.putInt("cardreader_type", 2);
-					}else {
+					}else if (rb_yd.isChecked()==true){
 						MyConstants.editor.putInt("cardreader_type", 3);
 					}
+//					MyConstants.editor.putInt("cardreader_type", 100);//测试数据
 					MyConstants.editor.commit();
 					if (url.equals(""))
 					{
@@ -216,5 +236,6 @@ public class Credit extends CordovaActivity
 			}
 		}).setMessage("您确定要退出本系统?").show();
 	}
+    
 }
 

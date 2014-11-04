@@ -24,6 +24,7 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -35,27 +36,29 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android_serialport_api.SerialPort;
 
 import com.authentication.utils.ContextUtils;
-import com.authentication.utils.DataUtils;
-import com.mega.cardreader.AsyncParseSFZ;
 import com.mega.credit.BlueToothReadCardThread;
 import com.mega.credit.ElectronWriteName;
+import com.mega.credit.GTReadCardThread;
 import com.mega.credit.MyConstants;
 import com.mega.credit.MyHandler;
-import com.mega.credit.Person;
 import com.mega.credit.R;
 import com.mega.credit.ReadCardThread;
 
@@ -63,7 +66,6 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 {
 	private Thread thread;
 	private ProgressDialog progressDialog;
-	private AsyncParseSFZ asyncParseSFZ;
 	private MyHandler myHandler;
 	private ElectronWriteName eName;
 	private LinearLayout lname;
@@ -98,21 +100,10 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 		editor = spf.edit();
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	}
-	/*远盈参数*/
+	/* 远盈参数 */
 	private SerialPort mserialPort;
-	private InputStream yyInStream;
-	private OutputStream yyOutStream;
-	private int Readflage;
-	private byte[] recData;
-	private byte[] datawlt;
-	private String[] decodeInfo;
-	byte[] cmd_find = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0x96, 0x69, 0x00, 0x03, 0x20, 0x01, 0x22 };
-	byte[] cmd_selt = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0x96, 0x69, 0x00, 0x03, 0x20, 0x02, 0x21 };
-	byte[] cmd_read = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0x96, 0x69, 0x00, 0x03, 0x30, 0x01, 0x32 };
-	byte[] cmd_sleep = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0x96, 0x69, 0x00, 0x02, 0x00, 0x02 };
-	byte[] cmd_weak = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0x96, 0x69, 0x00, 0x02, 0x01, 0x03 };
-	private Person person;
-	/*远盈参数*/
+
+	/* 远盈参数 */
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView)
 	{
@@ -125,10 +116,10 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 	{
 		// TODO Auto-generated method stub
 		Log.i("本地插件标志", action);
-//		 action = "signName";
+		// action = "signName";
 		if (action.equals("readIdCard"))
 		{
-			if (MyConstants.spf.getInt("cardreader_type", 0) == 1)
+			if (MyConstants.spf.getInt("cardreader_type", 0) == 100)
 			{
 				/****** 测试数据 *****/
 				progressDialog = new ProgressDialog(cordova.getActivity());
@@ -161,95 +152,16 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 					}
 				}).start();
 				/****** 测试数据 *****/
-			} else if (MyConstants.spf.getInt("cardreader_type", 0) == 2)
+			} else if (MyConstants.spf.getInt("cardreader_type", 0) == 1)
 			{
-				/****** 肯麦斯读二代证 *****
-				try
-				{
-					progressDialog = new ProgressDialog(cordova.getActivity());
-					progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-					progressDialog.setTitle("提示");
-					progressDialog.setMessage("正在读取数据......");
-					progressDialog.setIndeterminate(false);
-					progressDialog.setCancelable(false);
-					myHandler = new MyHandler(callbackContext);
-					asyncParseSFZ = new AsyncParseSFZ(ContextUtils.getInstance().getHandlerThread().getLooper(), ContextUtils.getInstance().getRootPath());
-					asyncParseSFZ.setOnReadSFZListener(new OnReadSFZListener()
-					{
-						@Override
-						public void onReadSuccess(People people)
-						{
-							progressDialog.dismiss();
-							Message msg = new Message();
-							Bundle bundle = new Bundle();
-							bundle.putSerializable("people", people);
-							msg.setData(bundle);
-							msg.what = 1;
-							myHandler.sendMessage(msg);
-						}
-
-						@Override
-						public void onReadFail(int confirmationCode)
-						{
-							progressDialog.dismiss();
-							if (confirmationCode == ParseSFZAPI.Result.FIND_FAIL)
-							{
-								Message msg = new Message();
-								msg.what = confirmationCode;
-								myHandler.sendMessage(msg);
-							} else if (confirmationCode == ParseSFZAPI.Result.TIME_OUT)
-							{
-								Message msg = new Message();
-								msg.what = confirmationCode;
-								myHandler.sendMessage(msg);
-							} else if (confirmationCode == ParseSFZAPI.Result.OTHER_EXCEPTION)
-							{
-								Message msg = new Message();
-								msg.what = confirmationCode;
-								myHandler.sendMessage(msg);
-							}
-						}
-					});
-					SerialPortManager.getInstance().openSerialPort();
-					progressDialog.show();
-					asyncParseSFZ.readSFZ(ParseSFZAPI.SECOND_GENERATION_CARD);
-
-				} catch (InvalidParameterException e)
-				{
-					// TODO Auto-generated catch block
-					Log.e("readidcard", e.toString());
-					Message msg = new Message();
-					msg.what = 5;
-					myHandler.sendMessage(msg);
-				} catch (SecurityException e)
-				{
-					// TODO Auto-generated catch block
-					Log.e("readidcard", e.toString());
-					Message msg = new Message();
-					msg.what = 5;
-					myHandler.sendMessage(msg);
-				} catch (IOException e)
-				{
-					// TODO Auto-generated catch block
-					Log.e("readidcard", e.toString());
-					Message msg = new Message();
-					msg.what = 5;
-					myHandler.sendMessage(msg);
-				}
-				****** 肯麦斯读二代证 *****/
-				
 				/***** 远盈读二代证 *****/
-				person = new Person();
-				Readflage = -99;
-				recData = new byte[1500];
-				decodeInfo = new String[10];
 				progressDialog = new ProgressDialog(cordova.getActivity());
 				progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 				progressDialog.setTitle("提示");
 				progressDialog.setMessage("正在读取数据......");
 				progressDialog.setIndeterminate(false);
 				progressDialog.setCancelable(true);
-				myHandler = new MyHandler(callbackContext,progressDialog);
+				myHandler = new MyHandler(callbackContext, progressDialog);
 				progressDialog.show();
 				try
 				{
@@ -290,82 +202,10 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 					message.what = 14;
 					myHandler.sendMessage(message);
 				}
-//				try
-//				{
-//					new Thread(new Runnable()
-//					{
-//						
-//						@Override
-//						public void run()
-//						{
-//							// TODO Auto-generated method stub
-//							if (mserialPort==null)
-//							{
-//								
-//								try
-//								{
-//									mserialPort = new SerialPort(new File("/dev/ttySAC3"), 115200, 0);
-//									if (yyInStream==null)
-//									{
-//										yyInStream = mserialPort.getInputStream();
-//									}
-//									if (yyOutStream==null)
-//									{
-//										yyOutStream = mserialPort.getOutputStream();
-//									}
-//								} catch (SecurityException e)
-//								{
-//									// TODO Auto-generated catch block
-//									Message message = new Message();
-//									message.what = 14;
-//									myHandler.sendMessage(message);
-//									
-//								} catch (IOException e)
-//								{
-//									// TODO Auto-generated catch block
-//									Message message = new Message();
-//									message.what = 14;
-//									myHandler.sendMessage(message);
-//								}
-//							}
-//							if (yyInStream!=null&&yyOutStream!=null)
-//							{
-//								person = getData();
-//								if (person.getErrcode()==-1)
-//								{
-//									Message message = new Message();
-//									Bundle bundle = new Bundle();
-//									bundle.putSerializable("human", person);
-//									message.setData(bundle);
-//									message.what = 15;
-//									myHandler.sendMessage(message);
-//								}
-//								else {
-//									Message message = new Message();
-//									Bundle bundle = new Bundle();
-//									bundle.putSerializable("human", person);
-//									message.setData(bundle);
-//									message.what = 16;
-//									myHandler.sendMessage(message);
-//								}
-//							}
-//							
-//						}
-//					}).start();
-//					
-//				} catch (SecurityException e)
-//				{
-//					// TODO Auto-generated catch block
-//					Message message = new Message();
-//					message.what = 1;
-//					myHandler.sendMessage(message);
-//				}
-			
 				/***** 远盈读二代证 *****/
 
 			} else
 			{
-				/*** 凯斯泰尔读二代证 ***/
 				timer = new Timer();
 				final CallbackContext context = callbackContext;
 				if (mBluetoothAdapter == null)
@@ -423,138 +263,248 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 					open.setOnClickListener(this);
 					setting.setOnClickListener(this);
 					reflash.setOnClickListener(this);
-					read.setOnClickListener(new OnClickListener()
+
+					/***** 国腾读二代证 *****/
+					if (MyConstants.spf.getInt("cardreader_type", 0) == 3)
 					{
-
-						@Override
-						public void onClick(View v)
+						read.setOnClickListener(new OnClickListener()
 						{
-							// TODO Auto-generated method stub
-							if (!mBluetoothAdapter.isEnabled())
+
+							@Override
+							public void onClick(View v)
 							{
-								Toast.makeText(cordova.getActivity(), "蓝牙未打开！", Toast.LENGTH_SHORT).show();
-							} else
-							{
-								progressDialog = new ProgressDialog(cordova.getActivity());
-								progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-								progressDialog.setTitle("提示");
-								progressDialog.setMessage("正在连接设备......");
-								progressDialog.setIndeterminate(false);
-								progressDialog.setCancelable(false);
-								myHandler = new MyHandler(context, progressDialog, readboarddialog);
-								if (readerlist.getSelectedItem() != null)
+								// TODO Auto-generated method stub
+								if (!mBluetoothAdapter.isEnabled())
 								{
-									String add = readerlist.getSelectedItem().toString();
-									editor.putString("default_reader", add);
-									editor.commit();
-									add = add.substring(add.length() - 17);
-									device = mBluetoothAdapter.getRemoteDevice(add);
-									progressDialog.show();
-									new Thread(new Runnable()
-									{
-
-										@Override
-										public void run()
-										{
-											// TODO Auto-generated method stub
-											try
-											{
-												Thread.sleep(100);
-												TimerTask conntask = new TimerTask()
-												{
-
-													@Override
-													public void run()
-													{
-														// TODO Auto-generated
-														// method stub
-														if (mmInStream == null || mmOutStream == null)
-														{
-															Message message = new Message();
-															message.what = 11;
-															Bundle bundle = new Bundle();
-															bundle.putString("error", "连接设备超时异常！");
-															message.setData(bundle);
-															myHandler.sendMessage(message);
-															Thread.currentThread().interrupt();
-														}
-													}
-												};
-												if (mmInStream != null && mmInStream != null)
-												{
-													System.out.println("哈哈");
-													new BlueToothReadCardThread(mmInStream, mmOutStream,myHandler).start();
-												}else {
-													System.out.println("哈哈1");
-													timer.schedule(conntask, 15000);
-//													if (mBTHSocket==null)
-//													{
-//														mBTHSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-//													}
-													int sdk = Build.VERSION.SDK_INT;
-													if (sdk >= 10)
-													{
-														mBTHSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-													} else
-													{
-														mBTHSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-													}
-													mBTHSocket.connect();
-													mmInStream = mBTHSocket.getInputStream();
-													mmOutStream = mBTHSocket.getOutputStream();
-													if (mmInStream != null && mmInStream != null)
-													{
-														new BlueToothReadCardThread(mmInStream, mmOutStream,myHandler).start();
-													}
-												}
-
-											} catch (NumberFormatException e)
-											{
-												// TODO Auto-generated catch
-												// block
-												timer.cancel();
-												Message message = new Message();
-												message.what = 11;
-												Bundle bundle = new Bundle();
-												bundle.putString("error", "错误码：NumberFormatException，连接设备异常！");
-												message.setData(bundle);
-												myHandler.sendMessage(message);
-											} catch (IOException e)
-											{
-												// TODO Auto-generated catch
-												// block
-												timer.cancel();
-												Message message = new Message();
-												message.what = 11;
-												Bundle bundle = new Bundle();
-												bundle.putString("error", "错误码：IOException，连接设备异常！");
-												message.setData(bundle);
-												myHandler.sendMessage(message);
-											} catch (InterruptedException e)
-											{
-												// TODO Auto-generated catch
-												// block
-												timer.cancel();
-												Thread.currentThread().interrupt();
-											}
-										}
-									}).start();
+									Toast.makeText(cordova.getActivity(), "蓝牙未打开！", Toast.LENGTH_SHORT).show();
 								} else
 								{
-									Toast.makeText(cordova.getActivity(), "未选择默认蓝牙设备", Toast.LENGTH_SHORT).show();
-								}
+									progressDialog = new ProgressDialog(cordova.getActivity());
+									progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+									progressDialog.setTitle("提示");
+									progressDialog.setMessage("正在连接设备......");
+									progressDialog.setIndeterminate(false);
+									progressDialog.setCancelable(false);
+									myHandler = new MyHandler(context, progressDialog, readboarddialog);
+									if (readerlist.getSelectedItem() != null)
+									{
+										String add = readerlist.getSelectedItem().toString();
+										editor.putString("default_reader", add);
+										editor.commit();
+										add = add.substring(add.length() - 17);
+										device = mBluetoothAdapter.getRemoteDevice(add);
+										progressDialog.show();
+										new Thread(new Runnable()
+										{
 
+											@Override
+											public void run()
+											{
+												// TODO Auto-generated method
+												// stub
+												try
+												{
+													Thread.sleep(100);
+													new GTReadCardThread(device, myHandler).start();
+												} catch (SecurityException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													Message message = new Message();
+													message.what = 11;
+													Bundle bundle = new Bundle();
+													bundle.putString("error", "错误码：SecurityException，连接设备异常！");
+													message.setData(bundle);
+													myHandler.sendMessage(message);
+												} catch (NoSuchMethodException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													Message message = new Message();
+													message.what = 11;
+													Bundle bundle = new Bundle();
+													bundle.putString("error", "错误码：NoSuchMethodException，连接设备异常！");
+													message.setData(bundle);
+													myHandler.sendMessage(message);
+												} catch (InterruptedException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													Message message = new Message();
+													message.what = 11;
+													Bundle bundle = new Bundle();
+													bundle.putString("error", "错误码：InterruptedException，连接设备异常！");
+													message.setData(bundle);
+													myHandler.sendMessage(message);
+												} catch (IOException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													Message message = new Message();
+													message.what = 11;
+													Bundle bundle = new Bundle();
+													bundle.putString("error", "错误码：IOException，连接设备异常！");
+													message.setData(bundle);
+													myHandler.sendMessage(message);
+												}
+
+											}
+										}).start();
+									} else
+									{
+										Toast.makeText(cordova.getActivity(), "未选择默认蓝牙设备", Toast.LENGTH_SHORT).show();
+									}
+
+								}
 							}
-						}
-					});
+						});
+					}
+					/***** 国腾读二代证 *****/
+
+					/*** 凯斯泰尔读二代证 ***/
+					if (MyConstants.spf.getInt("cardreader_type", 0) == 2)
+					{
+						read.setOnClickListener(new OnClickListener()
+						{
+
+							@Override
+							public void onClick(View v)
+							{
+								// TODO Auto-generated method stub
+								if (!mBluetoothAdapter.isEnabled())
+								{
+									Toast.makeText(cordova.getActivity(), "蓝牙未打开！", Toast.LENGTH_SHORT).show();
+								} else
+								{
+									progressDialog = new ProgressDialog(cordova.getActivity());
+									progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+									progressDialog.setTitle("提示");
+									progressDialog.setMessage("正在连接设备......");
+									progressDialog.setIndeterminate(false);
+									progressDialog.setCancelable(false);
+									myHandler = new MyHandler(context, progressDialog, readboarddialog);
+									if (readerlist.getSelectedItem() != null)
+									{
+										String add = readerlist.getSelectedItem().toString();
+										editor.putString("default_reader", add);
+										editor.commit();
+										add = add.substring(add.length() - 17);
+										device = mBluetoothAdapter.getRemoteDevice(add);
+										progressDialog.show();
+										new Thread(new Runnable()
+										{
+
+											@Override
+											public void run()
+											{
+												// TODO Auto-generated method
+												// stub
+												try
+												{
+													Thread.sleep(100);
+													TimerTask conntask = new TimerTask()
+													{
+
+														@Override
+														public void run()
+														{
+															// TODO
+															// Auto-generated
+															// method stub
+															if (mmInStream == null || mmOutStream == null)
+															{
+																Message message = new Message();
+																message.what = 11;
+																Bundle bundle = new Bundle();
+																bundle.putString("error", "连接设备超时异常！");
+																message.setData(bundle);
+																myHandler.sendMessage(message);
+																Thread.currentThread().interrupt();
+															}
+														}
+													};
+													if (mmInStream != null && mmInStream != null)
+													{
+														System.out.println("哈哈");
+														new BlueToothReadCardThread(mmInStream, mmOutStream, myHandler).start();
+													} else
+													{
+														System.out.println("哈哈1");
+														timer.schedule(conntask, 15000);
+														// if (mBTHSocket==null)
+														// {
+														// mBTHSocket =
+														// device.createRfcommSocketToServiceRecord(MY_UUID);
+														// }
+														int sdk = Build.VERSION.SDK_INT;
+														if (sdk >= 10)
+														{
+															mBTHSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+														} else
+														{
+															mBTHSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+														}
+														mBTHSocket.connect();
+														mmInStream = mBTHSocket.getInputStream();
+														mmOutStream = mBTHSocket.getOutputStream();
+														if (mmInStream != null && mmInStream != null)
+														{
+															new BlueToothReadCardThread(mmInStream, mmOutStream, myHandler).start();
+														}
+													}
+
+												} catch (NumberFormatException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													timer.cancel();
+													Message message = new Message();
+													message.what = 11;
+													Bundle bundle = new Bundle();
+													bundle.putString("error", "错误码：NumberFormatException，连接设备异常！");
+													message.setData(bundle);
+													myHandler.sendMessage(message);
+												} catch (IOException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													timer.cancel();
+													Message message = new Message();
+													message.what = 11;
+													Bundle bundle = new Bundle();
+													bundle.putString("error", "错误码：IOException，连接设备异常！");
+													message.setData(bundle);
+													myHandler.sendMessage(message);
+												} catch (InterruptedException e)
+												{
+													// TODO Auto-generated catch
+													// block
+													timer.cancel();
+													Thread.currentThread().interrupt();
+												}
+											}
+										}).start();
+									} else
+									{
+										Toast.makeText(cordova.getActivity(), "未选择默认蓝牙设备", Toast.LENGTH_SHORT).show();
+									}
+
+								}
+							}
+						});
+					}
+					/*** 凯斯泰尔读二代证 ***/
 					readboarddialog.show();
 				}
 
-				/*** 凯斯泰尔读二代证 ***/
 			}
 
 		} else if (action.equals("signName"))
 		{
+			DisplayMetrics dm = new DisplayMetrics();
+			cordova.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+			int screenWidth = dm.widthPixels;
+			int screenHeigh = dm.heightPixels;
 			cContext = callbackContext;
 			View view = LayoutInflater.from(cordova.getActivity()).inflate(R.layout.handsign, null);
 			cancel = (Button) view.findViewById(R.id.btQuit);
@@ -564,20 +514,36 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 			clear.setOnClickListener(this);
 			save.setOnClickListener(this);
 			lname = (LinearLayout) view.findViewById(R.id.WriteUserNameSpace);
+			LayoutParams params;
+			if (getScreenInches() > 7.0)
+			{
+				params = new LayoutParams(screenWidth * 7 / 10, screenHeigh * 5 / 10);// 10寸
+			} else
+			{
+				params = new LayoutParams(screenWidth * 8 / 10, screenHeigh * 6 / 10);// 7寸
+			}
+			lname.setLayoutParams(params);
 			eName = new ElectronWriteName(cordova.getActivity());
 			lname.addView(eName);
 			builder = new AlertDialog.Builder(cordova.getActivity());
 			dialog = builder.setCancelable(false).setView(view).create();
 			dialog.show();
-		} else if (action.equals("")) {
-			
+			if (getScreenInches() > 7.0)
+			{
+				dialog.getWindow().setLayout(screenWidth * 6 / 10, screenHeigh * 7 / 10);// 10寸
+			} else
+			{
+				dialog.getWindow().setLayout(screenWidth * 7 / 10, screenHeigh * 8 / 10);// 7寸
+			}
+		} else if (action.equals(""))
+		{
+
 		} else
 		{
 			return false;
 		}
 		return true;
 	}
-
 
 	@Override
 	public void onClick(View v)
@@ -707,8 +673,8 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 		}
 		return p;
 	}
-	
-	public Uri takeScreenShot(View view,CallbackContext context) throws Exception
+
+	public Uri takeScreenShot(View view, CallbackContext context) throws Exception
 	{
 		view.setDrawingCacheEnabled(true);
 		view.buildDrawingCache();
@@ -716,8 +682,8 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 		FileOutputStream fos = null;
 		try
 		{
-			String PIC_DIR = Environment.getExternalStorageDirectory()+"/mega";
-			String fileName = Environment.getExternalStorageDirectory()+"/mega/"+"sign.png";
+			String PIC_DIR = Environment.getExternalStorageDirectory() + "/mega";
+			String fileName = Environment.getExternalStorageDirectory() + "/mega/" + "sign.png";
 			if (!new File(PIC_DIR).exists())
 			{
 				new File(PIC_DIR).mkdir();
@@ -742,219 +708,24 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 		}
 		return null;
 
-//		invalidateLayoout();
+		// invalidateLayoout();
 	}
-	
-	private Person getData()
+
+	private double getScreenInches()
 	{
-		Person person = new Person();
-		int readcount = 15;
-		try
-		{
-			while (readcount > 1)
-			{
-				ReadCard();
-				readcount = readcount - 1;
-				if (Readflage > 0)
-				{
-					readcount = 0;
-					person.setPeopleName(decodeInfo[0]);
-					person.setPeopleSex(decodeInfo[1]);
-					person.setPeopleNation(decodeInfo[2]);
-					person.setPeopleBirthday(decodeInfo[3]);
-					person.setPeopleAddress(decodeInfo[4]);
-					person.setPeopleIDCode(decodeInfo[5]);
-					person.setDepartment(decodeInfo[6]);
-					person.setStartDate(decodeInfo[7]);
-					person.setEndDate(decodeInfo[8]);
-					person.setPhoto(datawlt);
-
-				} else
-				{
-//					image.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
-					if (Readflage == -2)
-					{
-						person.setErrcode(0);
-						person.setErrmsg("蓝牙连接异常");
-					}
-					if (Readflage == -3)
-					{
-						person.setErrcode(0);
-						person.setErrmsg("无卡或卡片已读过");
-					}
-					if (Readflage == -4)
-					{
-						person.setErrcode(0);
-						person.setErrmsg("无卡或卡片已读过");
-					}
-					if (Readflage == -5)
-					{
-						person.setErrcode(0);
-						person.setErrmsg("读卡失败");
-					}
-					if (Readflage == -99)
-					{
-						person.setErrcode(0);
-						person.setErrmsg("操作异常");
-					}
-				}
-				Thread.sleep(100);
-			}
-
-		} catch (InterruptedException e)
-		{
-			// CDialog.dismissDialog();
-		}
-		// CDialog.dismissDialog();
-		return person;
+		WindowManager wm = (WindowManager) cordova.getActivity().getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		// // 屏幕宽度
+		// float screenWidth = display.getWidth();
+		// // 屏幕高度
+		// float screenHeight = display.getHeight();
+		DisplayMetrics dm = new DisplayMetrics();
+		display.getMetrics(dm);
+		double x = Math.pow(dm.widthPixels / dm.xdpi, 2);
+		double y = Math.pow(dm.heightPixels / dm.ydpi, 2);
+		// 屏幕尺寸
+		double screenInches = Math.sqrt(x + y);
+		return screenInches;
 	}
 
-	private void ReadCard()
-	{
-		try
-		{
-			if ((yyInStream == null) || (yyOutStream == null))
-			{
-				Readflage = -2;// 连接异常
-				return;
-			}
-			yyOutStream.write(cmd_find);
-			Thread.sleep(200);
-			int datalen = yyInStream.read(recData);
-			System.out.println(">>>>>datalen111--->" + datalen);
-			if (recData[9] == -97)
-			{
-				yyOutStream.write(cmd_selt);
-				Thread.sleep(200);
-				datalen = yyInStream.read(recData);
-				System.out.println(">>>>>datalen222--->" + datalen);
-				if (recData[9] == -112)
-				{
-					yyOutStream.write(cmd_read);
-					Thread.sleep(1000);
-					byte[] tempData = new byte[1500];
-					if (yyInStream.available() > 0)
-					{
-						datalen = yyInStream.read(tempData);
-						System.out.println(">>>>>datalen333--->" + datalen);
-					} else
-					{
-						Thread.sleep(500);
-						if (yyInStream.available() > 0)
-						{
-							datalen = yyInStream.read(tempData);
-							System.out.println(">>>>>datalen333>>>--->>>" + datalen);
-						}
-					}
-					int flag = 0;
-					if (datalen < 1294)
-					{
-						for (int i = 0; i < datalen; i++, flag++)
-						{
-							recData[flag] = tempData[i];
-						}
-
-						Thread.sleep(1000);
-						if (yyInStream.available() > 0)
-						{
-							datalen = yyInStream.read(tempData);
-						} else
-						{
-							Thread.sleep(500);
-							if (yyInStream.available() > 0)
-							{
-								datalen = yyInStream.read(tempData);
-							}
-						}
-						for (int i = 0; i < datalen; i++, flag++)
-						{
-							recData[flag] = tempData[i];
-						}
-
-					} else
-					{
-						for (int i = 0; i < datalen; i++, flag++)
-						{
-							recData[flag] = tempData[i];
-							// System.out.println("readData"+flag+">>>>"+recData[flag]);
-						}
-
-					}
-					tempData = null;
-					if (flag == 1295)
-					{
-						if (recData[9] == -112)
-						{
-
-							byte[] dataBuf = new byte[256];
-							for (int i = 0; i < 256; i++)
-							{
-								dataBuf[i] = recData[14 + i];
-							}
-							String TmpStr = new String(dataBuf, "UTF16-LE");
-							TmpStr = new String(TmpStr.getBytes("UTF-8"));
-							decodeInfo[0] = TmpStr.substring(0, 15);
-							decodeInfo[1] = TmpStr.substring(15, 16);
-							decodeInfo[2] = TmpStr.substring(16, 18);
-							decodeInfo[3] = TmpStr.substring(18, 26);
-							decodeInfo[4] = TmpStr.substring(26, 61);
-							decodeInfo[5] = TmpStr.substring(61, 79);
-							decodeInfo[6] = TmpStr.substring(79, 94);
-							decodeInfo[7] = TmpStr.substring(94, 102);
-							decodeInfo[8] = TmpStr.substring(102, 110);
-							decodeInfo[9] = TmpStr.substring(110, 128);
-							if (decodeInfo[1].equals("1"))
-								decodeInfo[1] = "男";
-							else
-								decodeInfo[1] = "女";
-							try
-							{
-								int code = Integer.parseInt(decodeInfo[2].toString());
-								decodeInfo[2] = DataUtils.decodeNation(code);
-							} catch (Exception e)
-							{
-								decodeInfo[2] = "";
-							}
-							for (int i = 0; i < decodeInfo.length; i++)
-							{
-								System.out.println(decodeInfo[i]);
-							}
-							try
-							{
-								datawlt = new byte[1024];
-								for (int i = 0; i < 1024; i++)
-								{
-									datawlt[i] = recData[i + 270];
-								}
-							} catch (Exception e)
-							{
-								// TODO Auto-generated catch block
-								Readflage = 6;// 照片解码异常
-							}
-							Readflage = 1;
-
-						} else
-						{
-							Readflage = -5;// 读卡失败！
-						}
-					} else
-					{
-						Readflage = -5;// 读卡失败
-					}
-				} else
-				{
-					Readflage = -4;// 选卡失败
-				}
-			} else
-			{
-				Readflage = -3;// 寻卡失败
-			}
-
-		} catch (Exception e)
-		{
-			Readflage = -99;// 读取数据异常
-			// CDialog.dismissDialog();
-		}
-		// CDialog.dismissDialog();
-	}
 }

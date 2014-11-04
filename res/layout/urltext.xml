@@ -14,6 +14,7 @@
         android:background="@drawable/input"
         android:hint="请输入主页URL"/>
 	<RadioGroup 
+	    android:id="@+id/rg01"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:gravity="center_horizontal"
@@ -21,25 +22,25 @@
 	    android:orientation="horizontal"
 	    android:layout_marginBottom="10dp">
 	    <RadioButton 
-	        android:id="@+id/rb_ureal"
+	        android:id="@+id/rb_zd"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:button="@null"
-	        android:text="模拟读卡器"/>
+	        android:text="自带读卡器"/>
 	    <RadioButton 
-	        android:id="@+id/rb_real"
+	        android:id="@+id/rb_bj"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="40dp"
 	        android:button="@null"
-	        android:text="嵌入式读卡器"/>
-	    <RadioButton 
-	        android:id="@+id/rb_bth"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="40dp"
-	        android:button="@null"
-	        android:text="蓝牙读卡器"
+	        android:text="背夹式读卡器"
 	        android:checked="true"/>
+	    <RadioButton 
+	        android:id="@+id/rb_yd"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="40dp"
+	        android:button="@null"
+	        android:text="移动式读卡器"/>
 	</RadioGroup>
 </RelativeLayout>

@@ -19,6 +19,7 @@
 package org.apache.cordova.device;
 
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CallbackContext;
@@ -28,7 +29,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 
 public class Device extends CordovaPlugin {
     public static final String TAG = "Device";
@@ -70,11 +73,10 @@ public class Device extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("getDeviceInfo")) {
             JSONObject r = new JSONObject();
-            r.put("uuid", Device.uuid);
-            System.out.println("macµÿ÷∑£∫"+Device.uuid);
+            r.put("uuid", Device.uuid/*"b671264874ccd798"*/);
+            System.out.println("UUID:"+Device.uuid);
             r.put("version", this.getOSVersion());
             r.put("platform", this.getPlatform());
-            System.out.println("∆ΩÃ®£∫"+this.getPlatform());
             r.put("cordova", Device.cordovaVersion);
             r.put("model", this.getModel());
             callbackContext.success(r);
@@ -165,5 +167,27 @@ public class Device extends CordovaPlugin {
         }
         return false;
     }
+    
+    private String getMyUUID(){
+
+    	  final TelephonyManager tm = (TelephonyManager) this.cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);   
+
+    	  final String tmDevice, tmSerial, tmPhone, androidId;   
+
+    	  tmDevice = "" + tm.getDeviceId();  
+
+    	  tmSerial = "" + tm.getSimSerialNumber();   
+
+    	  androidId = "" + android.provider.Settings.Secure.getString(this.cordova.getActivity().getContentResolver(),android.provider.Settings.Secure.ANDROID_ID);   
+
+    	  UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());   
+
+    	  String uniqueId = deviceUuid.toString();
+
+//    	  Log.d("debug","uuid="+uniqueId);
+
+    	  return uniqueId;
+
+    	 }
 
 }

@@ -101,24 +101,25 @@ public class MyHandler extends Handler
 			callbackContext.error("可能是串口打开失败或其他异常！");
 			break;
 		/**肯麦斯**/
+			
+		/***** 测试 ****/
 		case 100:
-			/***** 测试 ****/
 			try
 			{
 				JSONObject r = new JSONObject();
-				r.put("idnumber", "35220319860102105X");
-				r.put("name", "厉茂妹");
-				r.put("address", "福建省福鼎市管阳镇七蒲村牛角19号");
+				r.put("idnumber", "35042119891208501X");
+				r.put("name", "邝丛鑫");
+				r.put("address", "福建省明溪县胡坊镇瓦口村邝坊4号");
 				r.put("sex", "男");
-				r.put("birthday_year", "1986");
-				r.put("birthday_month", "01");
-				r.put("birthday_day", "02");
-				r.put("validdate", "2011.02.23-2021.02.23");
-				r.put("issuing", "福鼎市公安局");
+				r.put("birthday_year", "1989");
+				r.put("birthday_month", "12");
+				r.put("birthday_day", "08");
+				r.put("validdate", "2006.02.10-2016.02.10");
+				r.put("issuing", "明溪县公安局");
 				r.put("photodata", getAssetsFileString("filename.txt"));
 				r.put("nation", "汉");
 				String string = r.toString();
-				System.out.println(string);
+//				System.out.println(string);
 				string = string.substring(1, string.length() - 1);
 				callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, string));
 				callbackContext.success();
@@ -222,6 +223,49 @@ public class MyHandler extends Handler
 			callbackContext.error(error_str);
 			break;
 		/***** 远盈 ****/
+		case 20:
+			Bundle bundle20 = msg.getData();
+			Person person20 = (Person) bundle20.getSerializable("person");
+			progressDialog.setMessage(person20.getMsg());
+			break;
+		case 21:
+			Bundle bundle21 = msg.getData();
+			Person person21 = (Person) bundle21.getSerializable("person");
+			progressDialog.dismiss();
+			dialog.cancel();
+			callbackContext.error(person21.getMsg());
+			break;
+		case 22:
+			progressDialog.dismiss();
+			dialog.cancel();
+			try
+			{
+				Bundle bundle1 = msg.getData();
+				Person person = (Person) bundle1.getSerializable("person");
+				JSONObject r = new JSONObject();
+				r.put("idnumber", person.getPeopleIDCode());
+				r.put("name", person.getPeopleName());
+				r.put("address", person.getPeopleAddress());
+				r.put("sex", person.getPeopleSex());
+				r.put("birthday_year", person.getPeopleBirthday().substring(0, 4));
+				r.put("birthday_month", person.getPeopleBirthday().substring(4, 6));
+				r.put("birthday_day", person.getPeopleBirthday().substring(6, 8));
+				String validdate = person.getStartDate().substring(0, 4) + "." + person.getStartDate().substring(4, 6) + "." + person.getStartDate().substring(6, 8) + "-" + person.getEndDate().substring(0, 4) + "." + person.getEndDate().substring(4, 6) + "." + person.getEndDate().substring(6, 8);
+				r.put("validdate", validdate);
+				r.put("issuing", person.getDepartment());
+				r.put("nation", person.getPeopleNation());
+				r.put("photodata", person.getBase64());
+				String string = r.toString();
+				string = string.substring(1, string.length() - 1);
+				callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, string));
+				callbackContext.success();
+				Toast.makeText(ContextUtils.getInstance(), "读二代证成功！", Toast.LENGTH_SHORT).show();
+			} catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				callbackContext.error("JSON异常！");
+			}
+			break;
 		default:
 			break;
 		}

@@ -55,14 +55,14 @@ public class Whitelist {
                 if (scheme == null || "*".equals(scheme)) {
                     this.scheme = null;
                 } else {
-                    this.scheme = Pattern.compile(regexFromPattern(scheme, false), Pattern.CASE_INSENSITIVE);
+                    this.scheme = Pattern.compile(regexFromPattern(scheme, false));
                 }
                 if ("*".equals(host)) {
                     this.host = null;
                 } else if (host.startsWith("*.")) {
-                    this.host = Pattern.compile("([a-z0-9.-]*\\.)?" + regexFromPattern(host.substring(2), false), Pattern.CASE_INSENSITIVE);
+                    this.host = Pattern.compile("([a-z0-9.-]*\\.)?" + regexFromPattern(host.substring(2), false));
                 } else {
-                    this.host = Pattern.compile(regexFromPattern(host, false), Pattern.CASE_INSENSITIVE);
+                    this.host = Pattern.compile(regexFromPattern(host, false));
                 }
                 if (port == null || "*".equals(port)) {
                     this.port = null;
@@ -120,15 +120,15 @@ public class Whitelist {
                     whiteList = null;
                 }
                 else { // specific access
-                    Pattern parts = Pattern.compile("^((\\*|[A-Za-z-]+):(//)?)?(\\*|((\\*\\.)?[^*/:]+))?(:(\\d+))?(/.*)?");
+                    Pattern parts = Pattern.compile("^((\\*|[a-z-]+)://)?(\\*|((\\*\\.)?[^*/:]+))?(:(\\d+))?(/.*)?");
                     Matcher m = parts.matcher(origin);
                     if (m.matches()) {
                         String scheme = m.group(2);
-                        String host = m.group(4);
+                        String host = m.group(3);
                         // Special case for two urls which are allowed to have empty hosts
                         if (("file".equals(scheme) || "content".equals(scheme)) && host == null) host = "*";
-                        String port = m.group(8);
-                        String path = m.group(9);
+                        String port = m.group(7);
+                        String path = m.group(8);
                         if (scheme == null) {
                             // XXX making it stupid friendly for people who forget to include protocol/SSL
                             whiteList.add(new URLPattern("http", host, port, path));
