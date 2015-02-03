@@ -8,17 +8,11 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.UUID;
-import java.security.MessageDigest;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Base64;
-import android.util.Log;
-import android.widget.Toast;
-
-import java.lang.reflect.Method;
 
 public class BloothComm{
 //private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");

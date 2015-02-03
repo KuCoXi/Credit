@@ -2,22 +2,12 @@ package android_serialport_api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.zip.DataFormatException;
 
-import com.authentication.utils.DataUtils;
-import com.authentication.utils.FileUtil;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
-import android_serialport_api.SerialPortManager;
+
+import com.authentication.utils.DataUtils;
 
 public class FingerprintAPI extends Handler {
 

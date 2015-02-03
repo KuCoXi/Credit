@@ -10,9 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="20dp"
         android:background="@drawable/input"
-        android:hint="请输入主页URL"/>
+        android:hint="输入合法的URL"/>
 	<RadioGroup 
 	    android:id="@+id/rg01"
 	    android:layout_width="match_parent"

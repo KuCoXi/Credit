@@ -73,7 +73,7 @@ public class Device extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("getDeviceInfo")) {
             JSONObject r = new JSONObject();
-            r.put("uuid", Device.uuid/*"b671264874ccd798"*/);
+            r.put("uuid", Device.uuid/*"0024250e1124758c"*//*"b671264874ccd798"*/);
             System.out.println("UUID:"+Device.uuid);
             r.put("version", this.getOSVersion());
             r.put("platform", this.getPlatform());

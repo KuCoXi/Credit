@@ -3,16 +3,8 @@ package com.authentication.utils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import android.content.Context;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
-import android.widget.Toast;
 
 
 public class DataUtils {

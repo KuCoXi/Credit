@@ -1,18 +1,9 @@
 package android_serialport_api;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import android.os.SystemClock;
+import android.util.Log;
 
 import com.authentication.utils.DataUtils;
-
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class M1CardAPI {
 	public static final int KEY_A = 1;

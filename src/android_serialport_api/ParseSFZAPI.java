@@ -9,18 +9,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
+import android.os.Looper;
+import android.util.Log;
 import cn.com.shptbm.DecodeWlt;
 
 import com.authentication.utils.DataUtils;
 import com.google.code.microlog4android.Logger;
 import com.google.code.microlog4android.LoggerFactory;
-
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
-import android.util.Log;
 
 public class ParseSFZAPI {
 	private static final byte[] command1 = "D&C00040101".getBytes();

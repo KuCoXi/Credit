@@ -93,7 +93,7 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 	public static OutputStream mmOutStream = null;
 	UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private Timer timer;
-	private CallbackContext cContext;
+	private CallbackContext callbackContext;
 	static
 	{
 		spf = PreferenceManager.getDefaultSharedPreferences(ContextUtils.getInstance().getApplicationContext());
@@ -117,7 +117,8 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 		// TODO Auto-generated method stub
 		Log.i("本地插件标志", action);
 		// action = "signName";
-		if (action.equals("readIdCard"))
+		this.callbackContext = callbackContext;
+		if (action.equals("readIdCard"))//读二代证
 		{
 			if (MyConstants.spf.getInt("cardreader_type", 0) == 100)
 			{
@@ -498,14 +499,12 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 				}
 
 			}
-
-		} else if (action.equals("signName"))
+		} else if (action.equals("signName"))//电子签名
 		{
 			DisplayMetrics dm = new DisplayMetrics();
 			cordova.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
 			int screenWidth = dm.widthPixels;
 			int screenHeigh = dm.heightPixels;
-			cContext = callbackContext;
 			View view = LayoutInflater.from(cordova.getActivity()).inflate(R.layout.handsign, null);
 			cancel = (Button) view.findViewById(R.id.btQuit);
 			clear = (Button) view.findViewById(R.id.btClear);
@@ -537,7 +536,7 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 			}
 		} else if (action.equals(""))
 		{
-
+			
 		} else
 		{
 			return false;
@@ -567,7 +566,7 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 		case R.id.btSave:
 			try
 			{
-				takeScreenShot(eName, cContext);
+				takeScreenShot(eName, callbackContext);
 				dialog.cancel();
 			} catch (Exception e)
 			{
@@ -715,10 +714,6 @@ public class HXiMateDeviceSDK extends CordovaPlugin implements OnClickListener
 	{
 		WindowManager wm = (WindowManager) cordova.getActivity().getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
-		// // 屏幕宽度
-		// float screenWidth = display.getWidth();
-		// // 屏幕高度
-		// float screenHeight = display.getHeight();
 		DisplayMetrics dm = new DisplayMetrics();
 		display.getMetrics(dm);
 		double x = Math.pow(dm.widthPixels / dm.xdpi, 2);

@@ -32,10 +32,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -49,28 +45,19 @@ public class Credit extends CordovaActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         super.init();
+        super.setIntegerProperty("splashscreen", R.drawable.splash);
         View view = LayoutInflater.from(this).inflate(R.layout.urltext, null);
         final EditText eturl = (EditText) view.findViewById(R.id.et_url);
         eturl.setText(MyConstants.spf.getString("url", ""));
-//        RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg01);
+        RadioGroup rg01 = (RadioGroup) view.findViewById(R.id.rg01);
+        rg01.setVisibility(View.INVISIBLE);
         final RadioButton rb_yd = (RadioButton) view.findViewById(R.id.rb_yd);
         final RadioButton rb_zd = (RadioButton) view.findViewById(R.id.rb_zd);
         final RadioButton rb_bj = (RadioButton) view.findViewById(R.id.rb_bj);
         rb_bj.setButtonDrawable(R.drawable.checkbox_checked_style);
         rb_zd.setButtonDrawable(R.drawable.checkbox_checked_style);
         rb_yd.setButtonDrawable(R.drawable.checkbox_checked_style);
-//        rb_yd.setOnCheckedChangeListener(new OnCheckedChangeListener()
-//		{
-//			
-//			@Override
-//			public void onCheckedChanged(CompoundButton arg0, boolean arg1)
-//			{
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		});
         MyConstants.setPowerOnSFZ();
         if (MyConstants.spf.getInt("cardreader_type", 0)==1)
 		{
@@ -83,7 +70,7 @@ public class Credit extends CordovaActivity
         else if (MyConstants.spf.getInt("cardreader_type", 0)==3){
 			rb_yd.setChecked(true);
 		}
-        new AlertDialog.Builder(this).setTitle("选择").setView(view).setCancelable(false).setPositiveButton("退出", new DialogInterface.OnClickListener()
+        new AlertDialog.Builder(this).setTitle("开始").setView(view).setCancelable(false).setPositiveButton("退出", new DialogInterface.OnClickListener()
 		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
@@ -134,15 +121,18 @@ public class Credit extends CordovaActivity
 						MyConstants.editor.putInt("cardreader_type", 3);
 					}
 //					MyConstants.editor.putInt("cardreader_type", 100);//测试数据
+					MyConstants.editor.putInt("cardreader_type", 1);//自带读卡器
+//					MyConstants.editor.putInt("cardreader_type", 2);//背夹式读卡器
+//					MyConstants.editor.putInt("cardreader_type", 3);//移动式读卡器
 					MyConstants.editor.commit();
-					if (url.equals(""))
+					if (url.trim().equals(""))
 					{
 						Toast.makeText(Credit.this, "URL不能为空！", Toast.LENGTH_SHORT).show();
 						field.set(dialog, false);// 点击dialog不消失
 					}
 					else {
 						field.set(dialog, true);// 点击dialog消失
-						loadUrl(url);
+						loadUrl(url,3000);
 					}
 					MyConstants.editor.putString("url", url);
 					MyConstants.editor.commit();
@@ -161,7 +151,7 @@ public class Credit extends CordovaActivity
 					e.printStackTrace();
 				}
 			}
-		}).setMessage("请选择二代证读卡器类型并输入主页URL：").show();
+		}).setMessage("请输入主页URL：").show();
     }
     
     @Override
@@ -236,6 +226,7 @@ public class Credit extends CordovaActivity
 			}
 		}).setMessage("您确定要退出本系统?").show();
 	}
+    
     
 }
 

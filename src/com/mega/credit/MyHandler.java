@@ -121,6 +121,8 @@ public class MyHandler extends Handler
 				String string = r.toString();
 //				System.out.println(string);
 				string = string.substring(1, string.length() - 1);
+				System.out.println("测试读二代证成功！");
+				Toast.makeText(ContextUtils.getInstance(), "读二代证成功！", Toast.LENGTH_SHORT).show();
 				callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, string));
 				callbackContext.success();
 			} catch (JSONException e)
@@ -205,9 +207,11 @@ public class MyHandler extends Handler
 				r.put("nation", person.getPeopleNation());
 				r.put("photodata", Base64.encodeToString(person.getPhoto(), Base64.DEFAULT));
 				String string = r.toString();
+				System.out.println(string);
 				string = string.substring(1, string.length() - 1);
 				callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, string));
 				callbackContext.success();
+				System.out.println("远盈读取成功！");
 				Toast.makeText(ContextUtils.getInstance(), "读二代证成功！", Toast.LENGTH_SHORT).show();
 			} catch (JSONException e)
 			{

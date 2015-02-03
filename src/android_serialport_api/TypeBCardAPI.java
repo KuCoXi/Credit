@@ -1,13 +1,10 @@
 package android_serialport_api;
 
-import java.io.IOException;
-
-import com.authentication.utils.DataUtils;
-
 import android.os.Message;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
+
+import com.authentication.utils.DataUtils;
 
 public class TypeBCardAPI {
 	/**
